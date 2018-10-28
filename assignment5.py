@@ -21,6 +21,8 @@ import unittest
 
 import numpy as np
 import pandas as pd
+import requests
+import math
 
 TWITTER_DATA_FILENAME = os.path.join(os.path.dirname(__file__), 'data', 'united-states-congress-house-twitter-2016-grouped-tweets-train.csv')
 WORD_VECTORS_FILENAME = os.path.join(os.path.dirname(__file__), 'data', 'united-states-congress-house-twitter-2016-word-vectors-fasttext.csv.xz')
@@ -40,7 +42,8 @@ def get_user_agent():
         str: user-agent string used by `requests`
 
     """
-    # YOUR CODE HERE
+    r = requests.get("https://httpbin.org/user-agent").json()
+    return r["user-agent"]
 
 
 # semantic word vectors practice
@@ -62,7 +65,16 @@ def find_similar_word(word):
 
     """
     word_vectors = load_word_vectors()
-    # YOUR CODE HERE
+    words = word_vectors.index
+    nr_words = len(words)
+    distances = np.zeros((nr_words, 1), float)
+    for i in range(nr_words):
+        distances[i] = calc_euclidean_distance(word_vectors.loc[word], word_vectors.iloc[i])
+    min_distance = np.min(distances[np.nonzero(distances)])
+
+
+def calc_euclidean_distance(array1, array2):
+    return np.linalg.norm(array1 - array2)
 
 
 def word_distance(word1, word2):
@@ -78,8 +90,8 @@ def word_distance(word1, word2):
         float: distance between words
 
     """
-    # YOUR CODE HERE
-
+    word_vectors = load_word_vectors()
+    return calc_euclidean_distance(word_vectors.loc[word1], word_vectors.loc[word2])
 
 
 # challenge problem: minor revision to assignment 4
